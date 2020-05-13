@@ -1,0 +1,47 @@
+instruction
+
+openCV模式关闭
+Camera.modeSelect = 'none'
+
+
+openCV视觉巡线
+Camera.modeSelect = 'findlineCV'
+
+
+openCV颜色查找
+Camera.modeSelect = 'findColor'
+
+
+openCV运动检测
+Camera.modeSelect = 'watchDog'
+
+
+设置查找颜色，变量分别为 H S V(都用0-255表示)
+Camera.colorFindSet(H, S, V)
+
+
+视觉巡线电机控制
+Camera.CVRunSet(1) #电机运动
+Camera.CVRunSet(1) #电机静止
+
+
+视觉巡线line1位置设置
+Camera.linePosSet_1(pos) #pos值可以为0-480（画面竖行分辨率），为0时，在画面最上面，为480时再画面最下面
+
+
+视觉巡线line2位置设置
+Camera.linePosSet_2(pos) #同上
+
+
+视觉巡线，线颜色设置
+Camera.colorSet(0) #寻白底黑线
+Camera.colorSet(255) #寻黑底白线
+
+
+视觉巡线是否渲染为黑白
+Camera.randerSet(1) #渲染为黑白
+Camera.randerSet(0) #正常画面
+
+
+视觉巡线转向阈值设置
+Camera.errorSet(err) #err默认为20，阈值越高转向越不灵敏适合寻粗线，阈值越低越适合寻细线
