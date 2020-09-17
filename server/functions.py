@@ -13,8 +13,11 @@ import json
 import ultra
 import Kalman_filter
 import move
+import RPIservo
 
 move.setup()
+scGear = RPIservo.ServoCtrl()
+scGear.moveInit()
 
 kalman_filter_X =  Kalman_filter.Kalman_filter(0.01,0.1)
 
@@ -61,10 +64,32 @@ pwm2_max  = 520
 pwm2_min  = 100
 pwm2_pos  = pwm2_init
 
+line_pin_right = 20
+line_pin_middle = 16
+line_pin_left = 19
+
+Dir_forward   = 0
+Dir_backward  = 1
+
+left_forward  = 1
+left_backward = 0
+
+right_forward = 0
+right_backward= 1
+# timestart = time.time()
+mark = 0
+# mark_left = 0
+# mark_right = 0
 
 def pwmGenOut(angleInput):
 	return int(round(23/9*angleInput))
 
+def setup():
+	GPIO.setwarnings(False)
+	GPIO.setmode(GPIO.BCM)
+	GPIO.setup(line_pin_right,GPIO.IN)
+	GPIO.setup(line_pin_middle,GPIO.IN)
+	GPIO.setup(line_pin_left,GPIO.IN)
 
 class Functions(threading.Thread):
 	def __init__(self, *args, **kwargs):
@@ -80,6 +105,7 @@ class Functions(threading.Thread):
 		self.scanServo = 1
 		self.turnServo = 0
 		self.turnWiggle = 200
+		setup()
 
 		super(Functions, self).__init__(*args, **kwargs)
 		self.__flag = threading.Event()
@@ -134,6 +160,9 @@ class Functions(threading.Thread):
 		self.functionMode = 'Automatic'
 		self.resume()
 
+	def tracklinestart(self):
+		self.functionMode = 'trackline'
+		self.resume()
 
 	def steady(self,goalPos):
 		self.functionMode = 'Steady'
@@ -200,7 +229,77 @@ class Functions(threading.Thread):
 			self.automaticProcessing()
 		elif self.functionMode == 'Steady':
 			self.steadyProcessing()
+		elif self.functionMode == 'trackline':
+			self.trackLineProcessing()
 
+	def trackLineProcessing(self):
+		status_right = GPIO.input(line_pin_right)
+		status_middle = GPIO.input(line_pin_middle)
+		status_left = GPIO.input(line_pin_left)
+		global mark
+		# print('R%d   M%d   L%d'%(status_right,status_middle,status_left))
+		if status_left ==0 and status_middle == 1 and status_right ==0:# (0 1 0)
+			move.motor_left(1, left_forward, 60)	# move.motor_left(status, left_forward, speed)   status:1 means action, 0 means end. left_forward:Left motor forward. speed: motor speed.
+			move.motor_right(1, right_forward, 60)	# right_backward: Right motor backward
+			scGear.moveAngle(0,0)		#scGear.moveAngle(0,Angle) Angle:Angle of front wheel rotation(-60 ~ 60)
+			mark = 1
+
+		elif status_left ==1 and status_middle == 1 and status_right ==0:# (1 1 0 )
+			if mark !=2:
+				move.motor_left(1, left_backward, 60)	# left_backward: Left motor backward
+				move.motor_right(1, right_backward, 60)	# right_backward: Right motor backward
+				time.sleep(0.03)
+			move.motor_left(1, left_forward, 60)
+			move.motor_right(1, right_forward, 60)
+			scGear.moveAngle(0,30)
+			mark = 2
+
+		elif status_left ==1 and status_middle == 0 and status_right ==0:#(1 0 0)
+			if mark !=3:
+				move.motor_left(1, left_backward, 60)
+				move.motor_right(1, right_backward, 60)
+				time.sleep(0.03)
+			move.motor_left(1, left_forward, 60)
+			move.motor_right(1, right_forward, 60)
+			scGear.moveAngle(0,60)
+			mark = 3
+
+		elif  status_left ==0 and status_middle == 1 and status_right ==1:# (0 1 1)
+			if mark !=4:
+				move.motor_left(1, left_backward, 60)
+				move.motor_right(1, right_backward, 60)
+				time.sleep(0.03)
+			move.motor_left(1, left_forward, 60)
+			move.motor_right(1, right_forward, 60)
+			scGear.moveAngle(0,-30)
+			mark = 4
+
+		elif  status_left ==0 and status_middle == 0 and status_right ==1:# (0 0 1)
+			if mark !=5:
+				move.motor_left(1, left_backward, 60)
+				move.motor_right(1, right_backward, 60)
+				time.sleep(0.03)
+			move.motor_left(1, left_forward, 60)
+			move.motor_right(1, right_forward, 60)
+			scGear.moveAngle(0,-60)
+			mark = 5
+
+		else:
+			if mark ==0 :
+				move.motor_left(1, left_forward, 60)
+				move.motor_right(1, right_forward, 60)
+			elif mark == 1:
+				move.motor_left(1, left_forward, 60)
+				move.motor_right(1, right_forward, 60)
+			elif mark == 2 or mark == 3:				# (1 0 0)
+				move.motor_left(1, left_forward, 60)
+				move.motor_right(1, right_forward, 60)
+				scGear.moveAngle(0,60)
+			elif mark == 4 or mark == 5:
+				move.motor_left(1, left_forward, 60)
+				move.motor_right(1, right_forward, 60)
+				scGear.moveAngle(0,-60)
+		time.sleep(0.1)
 
 	def run(self):
 		while 1:
@@ -208,15 +307,19 @@ class Functions(threading.Thread):
 			self.functionGoing()
 			pass
 
-
 if __name__ == '__main__':
-	pass
-	# fuc=Functions()
-	# fuc.radarScan()
-	# fuc.start()
-	# fuc.automatic()
-	# # fuc.steady(300)
-	# time.sleep(30)
-	# fuc.pause()
-	# time.sleep(1)
-	# move.move(80, 'no', 'no', 0.5)
+	try:
+		fuc=Functions()
+		# fuc.radarScan()
+		# fuc.start()
+		# fuc.automatic()
+		fuc.steady(300)
+		while 1:
+			# time.sleep(10)
+		# time.sleep(30)
+			fuc.trackLineProcessing()
+		# time.sleep(1)
+		# move.move(80, 'no', 'no', 0.5)
+	
+	except:
+		move.move(0, 'no', 'no', 0)
