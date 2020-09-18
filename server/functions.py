@@ -160,7 +160,7 @@ class Functions(threading.Thread):
 		self.functionMode = 'Automatic'
 		self.resume()
 
-	def tracklinestart(self):
+	def trackLine(self):
 		self.functionMode = 'trackline'
 		self.resume()
 
