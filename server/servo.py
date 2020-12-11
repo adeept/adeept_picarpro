@@ -245,7 +245,7 @@ if __name__ == '__main__':
 		for i in range(0,100):
 			pwm.set_pwm(3, 0, (300+i))
 			time.sleep(0.05)
-  	for i in range(0,100):
+		for i in range(0,100):
 			pwm.set_pwm(3, 0, (400-i))
 			time.sleep(0.05)
 
