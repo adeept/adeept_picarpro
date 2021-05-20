@@ -102,7 +102,7 @@ def FPV_thread():
 
 
 def ap_thread():
-    os.system("sudo create_ap wlan0 eth0 Groovy 12345678")
+    os.system("sudo create_ap wlan0 eth0 Adeept_Robot 12345678")
 
 
 def functionSelect(command_input, response):
@@ -163,14 +163,14 @@ def functionSelect(command_input, response):
     elif 'trackLineOff' == command_input:
         fuc.pause()
 
-    elif 'steadyCamera' == command_input:
-        if OLED_connection:
-            screen.screen_show(5,'SteadyCamera')
-        fuc.steady(T_sc.lastPos[2])
+    # elif 'steadyCamera' == command_input:
+    #     if OLED_connection:
+    #         screen.screen_show(5,'SteadyCamera')
+    #     fuc.steady(T_sc.lastPos[2])
 
-    elif 'steadyCameraOff' == command_input:
-        fuc.pause()
-        move.motorStop()
+    # elif 'steadyCameraOff' == command_input:
+    #     fuc.pause()
+    #     move.motorStop()
 
 
 def switchCtrl(command_input, response):
@@ -225,13 +225,13 @@ def robotCtrl(command_input, response):
     elif 'LRstop' in command_input:
         P_sc.stopWiggle()
 
-    elif 'up' == command_input:
+    elif 'armup' == command_input:
         T_sc.singleServo(2, 1, 3)
 
-    elif 'down' == command_input:
+    elif 'armdown' == command_input:
         T_sc.singleServo(2, -1, 3)
 
-    elif 'UDstop' in command_input:
+    elif 'armstop' in command_input:
         T_sc.stopWiggle()
 
     elif 'handup' == command_input:
