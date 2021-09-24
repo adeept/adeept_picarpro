@@ -36,6 +36,8 @@ except:
     print('OLED disconnected')
     pass
 
+mark_test = 0
+
 functionMode = 0
 speed_set = 100
 rad = 0.5
@@ -320,6 +322,7 @@ def update_code():
                 os.system('sudo reboot')
 
 def wifi_check():
+    global mark_test
     try:
         s =socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
         s.connect(("1.1.1.1",80))
@@ -330,7 +333,13 @@ def wifi_check():
         if OLED_connection:
             screen.screen_show(2, 'IP:'+ipaddr_check)
             screen.screen_show(3, 'AP MODE OFF')
+        mark_test = 1   # 如果小车曾经连接网络成功了，标志为1
     except:
+        if mark_test == 1:
+            mark_test = 0
+            move.destroy()      # motor stop.
+            scGear.moveInit()   # servo  back initial position.
+
         ap_threading=threading.Thread(target=ap_thread)   #Define a thread for data receiving
         ap_threading.setDaemon(True)                          #'True' means it is a front thread,it would close when the mainloop() closes
         ap_threading.start()                                  #Thread starts
@@ -388,6 +397,13 @@ async def recv_msg(websocket):
 
         data = ''
         data = await websocket.recv()
+        # try:
+        #     data = await websocket.recv()
+        # except:
+        #     print("WEB interface disconnected!")
+        #     move.destroy()      # motor stop.
+        #     scGear.moveInit()   # servo  back initial position.
+
         try:
             data = json.loads(data)
         except Exception as e:
@@ -474,6 +490,19 @@ async def main_logic(websocket, path):
     await check_permit(websocket)
     await recv_msg(websocket)
 
+def test_Network_Connection():
+    while True:
+        try:
+            print("test wifi??")
+            s =socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+            s.connect(("1.1.1.1",80))
+            s.close()
+        except:
+            print("error!!")
+            move.destroy()
+        
+        time.sleep(0.5)
+
 if __name__ == '__main__':
     switch.switchSetup()
     switch.set_all_switch_off()
@@ -486,6 +515,11 @@ if __name__ == '__main__':
     global flask_app
     flask_app = app.webapp()
     flask_app.startthread()
+            
+    test_threading=threading.Thread(target=test_Network_Connection)         #Define a thread for FPV and OpenCV
+    test_threading.setDaemon(False)                             #'True' means it is a front thread,it would close when the mainloop() closes
+    test_threading.start()                                     #Thread starts
+
 
     try:
         RL=robotLight.RobotLight()
