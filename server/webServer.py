@@ -493,7 +493,7 @@ async def main_logic(websocket, path):
 def test_Network_Connection():
     while True:
         try:
-            print("test wifi??")
+            print("test Network Connection status")
             s =socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
             s.connect(("1.1.1.1",80))
             s.close()
@@ -515,10 +515,11 @@ if __name__ == '__main__':
     global flask_app
     flask_app = app.webapp()
     flask_app.startthread()
-            
-    test_threading=threading.Thread(target=test_Network_Connection)         #Define a thread for FPV and OpenCV
-    test_threading.setDaemon(False)                             #'True' means it is a front thread,it would close when the mainloop() closes
-    test_threading.start()                                     #Thread starts
+
+    # Prevent the problem that the car cannot stop after the Raspberry Pi accidentally disconnects from the network.
+    testNC_threading=threading.Thread(target=test_Network_Connection)
+    testNC_threading.setDaemon(False)
+    testNC_threading.start()                                     
 
 
     try:
