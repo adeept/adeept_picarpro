@@ -17,6 +17,8 @@ pid.SetKp(0.5)
 pid.SetKd(0)
 pid.SetKi(0)
 
+mark = 0
+
 CVRun = 1
 linePos_1 = 440
 linePos_2 = 380
@@ -443,4 +445,13 @@ class Camera(BaseCamera):
 
 
             # encode as a jpeg image and return it
-            yield cv2.imencode('.jpg', img)[1].tobytes()
+            if cv2.imencode('.jpg', img)[0] :
+                yield cv2.imencode('.jpg', img)[1].tobytes()
+
+            # Reduce the amount of long video transmission.
+            # if cv2.imencode('.jpg', img)[0] :
+            #     mark = mark + 1
+            #     if (mark % 2) == 0:
+            #         if mark >=1000:
+            #             mark = 0
+            #         yield cv2.imencode('.jpg', img)[1].tobytes()
