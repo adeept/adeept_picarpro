@@ -517,9 +517,9 @@ if __name__ == '__main__':
     flask_app.startthread()
 
     # Prevent the problem that the car cannot stop after the Raspberry Pi accidentally disconnects from the network.
-    testNC_threading=threading.Thread(target=test_Network_Connection)
-    testNC_threading.setDaemon(False)
-    testNC_threading.start()                                     
+    # testNC_threading=threading.Thread(target=test_Network_Connection)
+    # testNC_threading.setDaemon(False)
+    # testNC_threading.start()                                     
 
 
     try:
