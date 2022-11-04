@@ -329,7 +329,7 @@ def wifi_check():
         ipaddr_check=s.getsockname()[0]
         s.close()
         print(ipaddr_check)
-        update_code()
+        #update_code()
         if OLED_connection:
             screen.screen_show(2, 'IP:'+ipaddr_check)
             screen.screen_show(3, 'AP MODE OFF')
@@ -493,12 +493,12 @@ async def main_logic(websocket, path):
 def test_Network_Connection():
     while True:
         try:
-            print("test Network Connection status")
+            # print("test Network Connection status")
             s =socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
             s.connect(("1.1.1.1",80))
             s.close()
         except:
-            print("error!!")
+            # print("error!!")
             move.destroy()
         
         time.sleep(0.5)
@@ -516,7 +516,12 @@ if __name__ == '__main__':
     flask_app = app.webapp()
     flask_app.startthread()
 
-    # Prevent the problem that the car cannot stop after the Raspberry Pi accidentally disconnects from the network.
+    """ 
+    If the Raspberry Pi is disconnected from the Internet, stop the car from moving.
+    Reconnect to the network, you can continue to control the car.
+    If you need this function, please enable the following three lines of code.
+    Note: The program will additionally occupy the running memory of the Raspberry Pi.
+    """
     # testNC_threading=threading.Thread(target=test_Network_Connection)
     # testNC_threading.setDaemon(False)
     # testNC_threading.start()                                     
