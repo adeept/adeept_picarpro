@@ -308,18 +308,18 @@ def configPWM(command_input, response):
             replace_num('init_pwm' + str(i) + ' = ', 300)
 
 
-def update_code():
-    # Update local to be consistent with remote
-    projectPath = thisPath[:-7]
-    with open(f'{projectPath}/config.json', 'r') as f1:
-        config = json.load(f1)
-        if not config['production']:
-            print('Update code')
-            # Force overwriting local code
-            if os.system(f'cd {projectPath} && sudo git fetch --all && sudo git reset --hard origin/master && sudo git pull') == 0:
-                print('Update successfully')
-                print('Restarting...')
-                os.system('sudo reboot')
+# def update_code():
+#     # Update local to be consistent with remote
+#     projectPath = thisPath[:-7]
+#     with open(f'{projectPath}/config.json', 'r') as f1:
+#         config = json.load(f1)
+#         if not config['production']:
+#             print('Update code')
+#             # Force overwriting local code
+#             if os.system(f'cd {projectPath} && sudo git fetch --all && sudo git reset --hard origin/master && sudo git pull') == 0:
+#                 print('Update successfully')
+#                 print('Restarting...')
+#                 os.system('sudo reboot')
 
 def wifi_check():
     global mark_test
@@ -333,7 +333,7 @@ def wifi_check():
         if OLED_connection:
             screen.screen_show(2, 'IP:'+ipaddr_check)
             screen.screen_show(3, 'AP MODE OFF')
-        mark_test = 1   # 如果小车曾经连接网络成功了，标志为1
+        mark_test = 1   # 如果小车曾经连接网络成功了，标志�?1
     except:
         if mark_test == 1:
             mark_test = 0
