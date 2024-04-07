@@ -333,7 +333,7 @@ def wifi_check():
         if OLED_connection:
             screen.screen_show(2, 'IP:'+ipaddr_check)
             screen.screen_show(3, 'AP MODE OFF')
-        mark_test = 1   # 如果小车曾经连接网络成功了，标志�?1
+        mark_test = 1  
     except:
         if mark_test == 1:
             mark_test = 0
